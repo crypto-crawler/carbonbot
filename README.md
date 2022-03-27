@@ -105,7 +105,7 @@ The `ghcr.io/crypto-crawler/carbonbot:latest` container writes data to the local
 ## Build
 
 ```bash
-docker pull ghcr.io/rust-lang/rust:nightly-bullseye-slim && docker pull node:bullseye-slim
+docker pull rust:latest && docker pull node:bullseye-slim
 docker build -t ghcr.io/crypto-crawler/carbonbot:latest .
 docker push ghcr.io/crypto-crawler/carbonbot:latest
 ```

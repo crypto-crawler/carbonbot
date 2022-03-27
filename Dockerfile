@@ -1,4 +1,4 @@
-FROM ghcr.io/rust-lang/rust:nightly-bullseye-slim AS builder
+FROM rust:latest AS builder
 
 RUN mkdir /project
 WORKDIR /project
