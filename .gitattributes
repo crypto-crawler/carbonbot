@@ -1,2 +1,4 @@
 *.js linguist-detectable=false
+*.sh linguist-detectable=false
+Dockerfile linguist-detectable=false
 
