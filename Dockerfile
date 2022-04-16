@@ -16,7 +16,7 @@ COPY --from=builder /project/target/release/carbonbot /usr/local/bin/carbonbot
 
 # procps provides the ps command, which is needed by pm2
 RUN apt-get -qy update && apt-get -qy --no-install-recommends install \
-    ca-certificates curl logrotate procps pigz \
+    ca-certificates curl logrotate procps pigz tree \
  && chown -R node:node /var/lib/logrotate/ \
  && npm install pm2 -g --production \
  && apt-get -qy install gzip unzip && curl https://rclone.org/install.sh | bash \
@@ -65,6 +65,7 @@ VOLUME [ "/data" ]
 
 USER node:node
 ENV USER node
+ENV DATA_DIR /carbonbot_data
 WORKDIR /home/node
 
 ENTRYPOINT ["fixuid", "-q"]

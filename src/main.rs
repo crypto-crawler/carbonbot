@@ -91,16 +91,18 @@ async fn main() {
 
     let exchange: &'static str = Box::leak(args[1].clone().into_boxed_str());
 
-    let market_type = MarketType::from_str(&args[2]);
+    let market_type_str = args[2].as_str();
+    let market_type = MarketType::from_str(market_type_str);
     if market_type.is_err() {
-        println!("Unknown market type: {}", &args[2]);
+        println!("Unknown market type: {}", market_type_str);
         return;
     }
     let market_type = market_type.unwrap();
 
-    let msg_type = MessageType::from_str(&args[3]);
+    let msg_type_str = args[3].as_str();
+    let msg_type = MessageType::from_str(msg_type_str);
     if msg_type.is_err() {
-        println!("Unknown msg type: {}", &args[3]);
+        println!("Unknown msg type: {}", msg_type_str);
         return;
     }
     let msg_type = msg_type.unwrap();
@@ -134,6 +136,16 @@ async fn main() {
         panic!("The environment variable DATA_DIR and REDIS_URL are not set, at least one of them should be set");
     }
 
+    let pid = std::process::id();
+    // write pid to file
+    {
+        let mut dir = std::env::temp_dir()
+            .join("carbonbot-pids")
+            .join(msg_type_str);
+        let _ = std::fs::create_dir_all(&dir);
+        dir.push(format!("{}.{}.{}", exchange, market_type_str, msg_type_str));
+        std::fs::write(dir.as_path(), pid.to_string()).expect("Unable to write pid to file");
+    }
     crawl(
         exchange,
         market_type,
