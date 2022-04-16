@@ -11,8 +11,8 @@ if [[ -z "${DATA_DIR}" ]]; then
   exit 1
 fi
 
-if [[ -z "${DEST_DIR}"  &&  -z "${AWS_S3_DIR}"  &&  -z "${REDIS_URL}" ]]; then
-  echo "At least one of DEST_DIR, AWS_S3_DIR, and REDIS_URL must be set" >&2
+if [[ -z "${DEST_DIR}" && -z "${AWS_S3_DIR}" && -z "${MINIO_DIR}" && -z "${REDIS_URL}" ]]; then
+  echo "At least one of DEST_DIR, AWS_S3_DIR, MINIO_DIR or REDIS_URL must be set" >&2
   exit 1
 fi
 
