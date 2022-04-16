@@ -36,7 +36,9 @@ do
     rclone copy "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
   fi
   if [[ -n "${DEST_DIR}" ]]; then
-    rclone copy "$DATA_DIR/$msg_type" "$DEST_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
+    rclone move "$DATA_DIR/$msg_type" "$DEST_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
+  else
+    rclone delete "$DATA_DIR/$msg_type" --include '*.json.gz'
   fi
 
   sleep 3
