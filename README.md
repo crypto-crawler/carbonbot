@@ -102,6 +102,19 @@ To upload data to AWS S3 automatically, uses need to specify three environment v
 docker run -d --name carbonbot-trade --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.trade.config.js
 ```
 
+Optionally, users can specify the `AWS_REGION` environment variable, see [Configuring the AWS SDK for Go
+](https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html).
+
+### MinIO
+
+To upload data to AWS S3 automatically, uses need to specify three environment variables, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `MINIO_ENDPOINT_URL` and `MINIO_DIR`. For example:
+
+```bash
+docker run -d --name carbonbot-trade --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_ENDPOINT_URL="http://ip:9000" -e MINIO_DIR="minio://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.trade.config.js
+```
+
+Optionally, users can specify the `AWS_REGION` environment variable.
+
 ### Redis
 
 To output data to Redis, users needs to specify a `REDIS_URL` environment variable. For example:

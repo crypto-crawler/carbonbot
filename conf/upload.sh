@@ -23,6 +23,13 @@ if [[ -n "${AWS_S3_DIR}" ]]; then
   fi
 fi
 
+if [[ -n "${MINIO_DIR}" ]]; then
+  if [[ -z "${AWS_ACCESS_KEY_ID}"  ||  -z "${AWS_SECRET_ACCESS_KEY}" ||  -z "${MINIO_ENDPOINT_URL}" ]]; then
+    echo "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and MINIO_ENDPOINT_URL must be set" >&2
+  exit 1
+  fi
+fi
+
 if [[ -n "${DEST_DIR}" ]]; then
   mkdir -p "$DEST_DIR/$msg_type"
 fi
@@ -33,7 +40,10 @@ do
   # Find .json files and compress them
   find "$DATA_DIR/$msg_type" -name "*.json" -type f | xargs -r -n 1 pigz -f
   if [[ -n "${AWS_S3_DIR}" ]]; then
-    rclone copy "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
+    rclone --s3-region "${AWS_REGION:-us-east-1}" copy "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
+  fi
+  if [[ -n "${MINIO_DIR}" ]]; then
+    rclone --s3-region "${AWS_REGION:-us-east-1}" --s3-endpoint $MINIO_ENDPOINT_URL copy "$DATA_DIR/$msg_type" "$MINIO_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
   fi
   if [[ -n "${DEST_DIR}" ]]; then
     rclone move "$DATA_DIR/$msg_type" "$DEST_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
