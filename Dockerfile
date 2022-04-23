@@ -55,8 +55,9 @@ COPY ./conf/logrotate/logrotate.other.conf /usr/local/etc/logrotate.other.conf
 COPY ./conf/logrotate/logrotate.open_interest.conf /usr/local/etc/logrotate.open_interest.conf
 
 COPY --chown=node:node ./conf/rclone.conf /home/node/.config/rclone/rclone.conf
-COPY ./conf/upload.sh /usr/local/bin/upload.sh
 COPY ./conf/logrotate.sh /usr/local/bin/logrotate.sh
+COPY ./conf/compress.sh /usr/local/bin/compress.sh
+COPY ./conf/upload.sh /usr/local/bin/upload.sh
 
 ENV RUST_LOG "warn"
 ENV RUST_BACKTRACE 1

@@ -38,7 +38,8 @@ fi
 while :
 do
   # Find .json files and compress them
-  find "$DATA_DIR/$msg_type" -name "*.json" -type f | xargs -r -n 1 pigz -f
+  # deprecated and replaced by compress.sh since 2022-04-23
+  # find "$DATA_DIR/$msg_type" -name "*.json" -type f -mmin +1 | xargs -r -n 1 pigz -f
   success=true
   if [[ -n "${AWS_S3_DIR}" ]]; then
     rclone --s3-region "${AWS_REGION:-us-east-1}" copy "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
