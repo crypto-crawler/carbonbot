@@ -37,18 +37,17 @@ fi
 # Infinite while loop
 while :
 do
-  # Find .json files and compress them
-  # deprecated and replaced by compress.sh since 2022-04-23
-  # find "$DATA_DIR/$msg_type" -name "*.json" -type f -mmin +1 | xargs -r -n 1 pigz -f
+  # Find .json files older than 1 minute and compress them
+  find "$DATA_DIR/$msg_type" -name "*.json" -type f -mmin +1 | xargs -r -n 1 pigz -f
   success=true
   if [[ -n "${AWS_S3_DIR}" ]]; then
-    rclone --s3-region "${AWS_REGION:-us-east-1}" copy "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
+    rclone --s3-region "${AWS_REGION:-us-east-1}" --timeout=3s --contimeout=5s --retries 1 --low-level-retries 1 copy "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
     if [ $? -ne 0 ]; then
       success=false
     fi
   fi
   if [[ -n "${MINIO_DIR}" ]]; then
-    rclone --s3-region "${AWS_REGION:-us-east-1}" --s3-endpoint $MINIO_ENDPOINT_URL copy "$DATA_DIR/$msg_type" "$MINIO_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
+    rclone --s3-region "${AWS_REGION:-us-east-1}" --s3-endpoint $MINIO_ENDPOINT_URL --timeout=3s --contimeout=5s --retries 1 --low-level-retries 1 copy "$DATA_DIR/$msg_type" "$MINIO_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8
     if [ $? -ne 0 ]; then
       success=false
     fi

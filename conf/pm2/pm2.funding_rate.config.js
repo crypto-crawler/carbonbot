@@ -36,16 +36,6 @@ apps.push({
 });
 
 apps.push({
-    name: "compress",
-    script: "/usr/local/bin/compress.sh",
-    args: "funding_rate",
-    exec_interpreter: "bash",
-    exec_mode: "fork_mode",
-    instances: 1,
-    restart_delay: 5000, // 5 seconds
-});
-
-apps.push({
     name: "upload",
     script: "/usr/local/bin/upload.sh",
     args: "funding_rate",
