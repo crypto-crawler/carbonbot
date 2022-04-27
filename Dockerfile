@@ -61,7 +61,7 @@ COPY ./conf/upload.sh /usr/local/bin/upload.sh
 ENV RUST_LOG "warn"
 ENV RUST_BACKTRACE 1
 
-VOLUME [ "/data" ]
+VOLUME [ "/carbonbot_data" ]
 
 USER node:node
 ENV USER node
