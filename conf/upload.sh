@@ -27,8 +27,8 @@ if [[ -n "${AWS_S3_DIR}" ]]; then
 fi
 
 if [[ -n "${MINIO_DIR}" ]]; then
-  if [[ -z "${AWS_ACCESS_KEY_ID}"  ||  -z "${AWS_SECRET_ACCESS_KEY}" ||  -z "${MINIO_ENDPOINT_URL}" ]]; then
-    echo "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and MINIO_ENDPOINT_URL must be set" >&2
+  if [[ -z "${MINIO_ACCESS_KEY_ID}"  ||  -z "${MINIO_SECRET_ACCESS_KEY}" ||  -z "${MINIO_ENDPOINT_URL}" ]]; then
+    echo "MINIO_ACCESS_KEY_ID, MINIO_SECRET_ACCESS_KEY and MINIO_ENDPOINT_URL must be set" >&2
   exit 1
   fi
   num_destinations=$((num_destinations+1))
@@ -58,7 +58,7 @@ do
     fi
   fi
   if [[ -n "${MINIO_DIR}" ]]; then
-    if ! rclone --s3-region "${AWS_REGION:-us-east-1}" --s3-endpoint "$MINIO_ENDPOINT_URL" --immutable --contimeout=1s --retries 1 --low-level-retries 1 $sub_command "$DATA_DIR/$msg_type" "$MINIO_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8; then
+    if ! rclone --s3-access-key-id "$MINIO_ACCESS_KEY_ID" --s3-secret-access-key "$MINIO_SECRET_ACCESS_KEY" --s3-region "${AWS_REGION:-us-east-1}" --s3-endpoint "$MINIO_ENDPOINT_URL" --immutable --contimeout=1s --retries 1 --low-level-retries 1 $sub_command "$DATA_DIR/$msg_type" "$MINIO_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8; then
       success=false
     fi
   fi
