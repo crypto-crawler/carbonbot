@@ -1,7 +1,6 @@
 // see src/market_type.rs in crypto-markets
 const market_types = {
     binance: ["linear_swap", "inverse_swap"],
-    bitget: ["inverse_swap", "linear_swap"],
     bitmex: ["unknown"], // unknown means all
     huobi: ["linear_swap", "inverse_swap"],
     okx: ["linear_swap", "inverse_swap"],
