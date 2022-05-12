@@ -4,7 +4,7 @@ use log::*;
 use reopen::Reopen;
 use std::{
     fs,
-    io::{Error, Write},
+    io::{BufWriter, Error, Write},
     path::Path,
 };
 
@@ -13,17 +13,18 @@ use signal_hook::consts::signal::SIGHUP;
 #[cfg(windows)] // Windows has a very limited set of signals, but make it compile at least :-(
 use signal_hook::consts::signal::SIGINT as SIGHUP;
 
-fn open<P: AsRef<Path>>(p: P) -> Result<fs::File, Error> {
+fn open<P: AsRef<Path>>(p: P) -> Result<BufWriter<fs::File>, Error> {
     info!("reopen {}", p.as_ref().display());
-    fs::OpenOptions::new()
+    let file = fs::OpenOptions::new()
         .create(true)
         .write(true)
         .append(true)
-        .open(p)
+        .open(p)?;
+    Ok(BufWriter::with_capacity(32 * 1024, file))
 }
 
 pub struct FileWriter {
-    file: Reopen<fs::File>,
+    file: Reopen<BufWriter<fs::File>>,
     path: String,
 }
 
