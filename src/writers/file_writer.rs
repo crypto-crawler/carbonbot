@@ -20,7 +20,7 @@ fn open<P: AsRef<Path>>(p: P) -> Result<BufWriter<fs::File>, Error> {
         .write(true)
         .append(true)
         .open(p)?;
-    Ok(BufWriter::with_capacity(32 * 1024, file))
+    Ok(BufWriter::new(file))
 }
 
 pub struct FileWriter {

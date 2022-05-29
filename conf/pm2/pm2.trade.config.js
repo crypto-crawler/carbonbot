@@ -31,6 +31,7 @@ const market_types = {
         "inverse_swap",
         "european_option",
     ],
+    zb: ["spot", "linear_swap"],
     zbg: ["spot", "inverse_swap", "linear_swap"],
 };
 
