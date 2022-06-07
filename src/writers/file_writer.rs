@@ -44,7 +44,7 @@ impl FileWriter {
 
 impl Writer for FileWriter {
     fn write(&mut self, s: &str) {
-        if let Err(e) = writeln!(self.file, "{}", s) {
+        if let Err(e) = writeln!(self.file, "{}", s.trim()) {
             error!("{}, {}", self.path, e);
         }
     }
