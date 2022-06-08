@@ -42,9 +42,9 @@ fn create_file_writer_thread(
                 );
             }
 
-            let s = serde_json::to_string(&msg).unwrap();
-
             if let Some(writer) = writers.get_mut(&file_name) {
+                // JSON, serde_json::to_string(&msg); CSV, msg.to_tsv_string()
+                let s = serde_json::to_string(&msg).unwrap();
                 writer.write(&s);
             }
             // copy to redis
