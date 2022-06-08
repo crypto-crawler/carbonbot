@@ -5,6 +5,7 @@ const market_types = {
     bybit: ["inverse_future", "inverse_swap"],
     coinbase_pro: ["spot"],
     huobi: ["spot", "inverse_future", "linear_swap", "inverse_swap"],
+    okx: ["unknown"],
 };
 
 const apps = [];
