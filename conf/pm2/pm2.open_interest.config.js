@@ -3,7 +3,7 @@ const market_types = {
     binance: ["linear_future", "inverse_future", "linear_swap", "inverse_swap"],
     bitget: ["inverse_swap", "linear_swap"],
     bybit: ["inverse_future", "inverse_swap", "linear_swap"],
-    deribit: ["inverse_future", "inverse_swap", "european_option"],
+    deribit: ["unknown"], // https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency={BTC,ETH,SOL,USDC} contains all markets
     dydx: ["linear_swap"],
     ftx: ["unknown"], // https://ftx.com/api/futures contains all open interests
     gate: ["linear_swap", "inverse_swap"],
