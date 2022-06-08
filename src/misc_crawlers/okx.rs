@@ -14,7 +14,7 @@ pub(super) async fn crawl_other(tx: Sender<Message>) {
         tx,
     );
     let commands =
-        vec![r#"{"op":"subscribe","args":[{"channel":"instruments","instType":"SPOT"},{"channel":"instruments","instType":"MARGIN"},{"channel":"instruments","instType":"SWAP"},{"channel":"instruments","instType":"FUTURES"},{"channel":"instruments","instType":"OPTION"},{"channel":"public-struc-block-trades"},{"channel":"status"},{"channel":"opt-summary","uly":"BTC-USD"},{"channel":"opt-summary","uly":"ETH-USD"},{"channel":"opt-summary","uly":"SOL-USD"},{"channel":"opt-summary","uly":"ENJ-USD"}]}"#.to_string()];
+        vec![r#"{"op":"subscribe","args":[{"channel":"instruments","instType":"SPOT"},{"channel":"instruments","instType":"MARGIN"},{"channel":"instruments","instType":"SWAP"},{"channel":"instruments","instType":"FUTURES"},{"channel":"instruments","instType":"OPTION"},{"channel":"public-struc-block-trades"},{"channel":"status"},{"channel":"opt-summary","uly":"BTC-USD"},{"channel":"opt-summary","uly":"ETH-USD"},{"channel":"opt-summary","uly":"SOL-USD"}]}"#.to_string()];
 
     let ws_client = OkxWSClient::new(tx, None).await;
     ws_client.send(&commands).await;
