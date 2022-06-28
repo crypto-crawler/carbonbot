@@ -19,7 +19,7 @@ msg_types=("trade" "l2_event" "l2_topk" "l3_event" "bbo" "ticker" "candlestick" 
 
 for msg_type in ${msg_types[@]}; do
   docker stop carbonbot-$msg_type && docker rm carbonbot-$msg_type
-  docker run -d --name carbonbot-$msg_type --restart unless-stopped -v $LOCAL_TMP_DIR:/carbonbot_data -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_S3_DIR=$AWS_S3_DIR -e MINIO_ACCESS_KEY_ID=$MINIO_ACCESS_KEY_ID -e MINIO_SECRET_ACCESS_KEY=$MINIO_SECRET_ACCESS_KEY -e MINIO_ENDPOINT_URL=$MINIO_ENDPOINT_URL -e MINIO_DIR=$MINIO_DIR -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.$msg_type.config.jsdone
+  docker run -d --name carbonbot-$msg_type --restart unless-stopped -v $LOCAL_TMP_DIR:/carbonbot_data -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_S3_DIR=$AWS_S3_DIR -e MINIO_ACCESS_KEY_ID=$MINIO_ACCESS_KEY_ID -e MINIO_SECRET_ACCESS_KEY=$MINIO_SECRET_ACCESS_KEY -e MINIO_ENDPOINT_URL=$MINIO_ENDPOINT_URL -e MINIO_DIR=$MINIO_DIR -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.$msg_type.config.js
 done
 
 docker system prune -af
