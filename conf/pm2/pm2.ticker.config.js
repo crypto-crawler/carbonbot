@@ -4,7 +4,7 @@ const market_types = {
         "spot",
         "linear_swap", // linear_future + linear_swap
         "inverse_swap", // inverse_future + inverse_swap
-        "european_option",
+        // "european_option",
     ],
     bitfinex: ["spot", "linear_swap"],
     bitget: ["spot", "inverse_swap", "linear_swap"],
