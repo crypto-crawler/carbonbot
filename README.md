@@ -7,7 +7,8 @@ A CLI tool based on the crypto-crawler-rs library to crawl trade, level2, level3
 ### AWS S3
 
 ```bash
-aws s3 sync s3://carbonbot/monthly/parsed .
+aws s3 ls --request-payer requester s3://carbonbot/
+aws s3 sync --request-payer requester s3://carbonbot/monthly/parsed .
 ```
 
 The S3 bucket `s3://carbonbot` has **Requester Pays** enabled.
