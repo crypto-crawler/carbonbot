@@ -2,6 +2,22 @@
 
 A CLI tool based on the crypto-crawler-rs library to crawl trade, level2, level3, ticker, funding rate, etc.
 
+## Data Sample Download
+
+### AWS S3
+
+```bash
+aws s3 sync s3://carbonbot/monthly/parsed .
+```
+
+The S3 bucket `s3://carbonbot` has **Requester Pays** enabled.
+
+
+### BitTorrent
+
+TODO
+
+
 ## Run
 
 To quickly get started, copy `conf/run_crawlers.sh` to somewhere, fill in neccesary parameters and run it.
@@ -136,9 +152,3 @@ docker pull rust:latest && docker pull node:bullseye-slim
 docker build -t ghcr.io/crypto-crawler/carbonbot:latest .
 docker push ghcr.io/crypto-crawler/carbonbot:latest
 ```
-
-## Download
-
-| File Name                | MD5                              | Size        | Magnet Link                                                                                                                                                                                                                                                    |
-| ------------------------ | -------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| parsed-trade-2021-07.zip | a4a4088c3c9ebccc70e4b10f77c044c3 | 84213736076 | magnet:?xt=urn:btih:557afe1132dd5a67dada971009733ae6019fd84b&dn=parsed-trade-2021-07.zip&tr=http%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=http%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=http%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce |
