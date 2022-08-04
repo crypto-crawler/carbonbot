@@ -2,7 +2,7 @@
 
 A CLI tool based on the crypto-crawler-rs library to crawl trade, level2, level3, ticker, funding rate, etc.
 
-## Data Sample Download
+## 1. Data Sample Download
 
 ### AWS S3
 
@@ -18,7 +18,7 @@ The S3 bucket `s3://carbonbot` has **Requester Pays** enabled.
 TODO
 
 
-## Run
+## 2. Run
 
 To quickly get started, copy `conf/run_crawlers.sh` to somewhere, fill in neccesary parameters and run it.
 
@@ -145,7 +145,7 @@ To output data to a local directory on host machine, users need to mount this lo
 docker run -d --name carbonbot-trade --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -v $ANOTHER_LOCAL_PATH:/dest_dir -e DEST_DIR=/dest_dir -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.trade.config.js
 ```
 
-## Build
+## 3. Build
 
 ```bash
 docker pull rust:latest && docker pull node:bullseye-slim
