@@ -1,23 +1,23 @@
 [package]
 name = "carbonbot"
-version = "2.11.7"
+version = "2.11.8"
 authors = ["soulmachine <soulmachine@gmail.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-crypto-crawler = "4.5.4"
-crypto-market-type = "1.1.1"
+crypto-crawler = "4.5.11"
+crypto-market-type = "1.1.2"
 crypto-msg-type = "1.0.8"
-crypto-ws-client = "4.11.8"
+crypto-ws-client = "4.11.9"
 redis = "0.21.5"
 reopen = { version = "1.0.3", features = ["signals"] }
-serde_json = "1.0.82"
+serde_json = "1.0.83"
 signal-hook = { version = "0.3.14", features = ["extended-siginfo"] }
 log = "0.4.17"
 env_logger = "0.9.0"
-tokio = { version = "1.19.2", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1.20.1", features = ["rt-multi-thread", "macros"] }
 
 [profile.release]
 lto = true

@@ -5,7 +5,6 @@ const market_types = {
         "linear_swap", // linear_future + linear_swap
         "inverse_swap", // inverse_future + inverse_swap
     ],
-    bitfinex: ["spot", "linear_swap"],
     bitmex: ["unknown"], // unknown means all
     deribit: ["inverse_future", "inverse_swap", "european_option"],
     ftx: ["spot", "linear_swap", "linear_future", "move", "bvol"],
