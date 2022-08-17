@@ -8,6 +8,7 @@ use std::{
     path::Path,
     sync::mpsc::{Receiver, Sender},
     thread::JoinHandle,
+    time::Instant,
 };
 
 pub trait Writer {
@@ -17,13 +18,17 @@ pub trait Writer {
 
 pub use file_writer::FileWriter;
 
+// If there are no messages coming in for `timeout` seconds, exit the process.
 fn create_file_writer_thread(
     rx: Receiver<Message>,
     data_dir: String,
     tx_redis: Option<Sender<Message>>,
+    timeout: Option<u64>,
 ) -> JoinHandle<()> {
     std::thread::spawn(move || {
+        let timeout = timeout.unwrap_or(300);
         let mut writers: HashMap<String, FileWriter> = HashMap::new();
+        let mut updated_at = Instant::now();
         for msg in rx {
             let file_name = format!("{}.{}.{}", msg.exchange, msg.market_type, msg.msg_type);
             if !writers.contains_key(&file_name) {
@@ -50,6 +55,14 @@ fn create_file_writer_thread(
             // copy to redis
             if let Some(ref tx_redis) = tx_redis {
                 tx_redis.send(msg).unwrap();
+            }
+
+            let elapsed = updated_at.elapsed().as_secs();
+            if elapsed > timeout {
+                // pm2 will restart this process
+                panic!("There are no messages for {} seconds, exiting", elapsed);
+            } else {
+                updated_at = Instant::now();
             }
         }
         for mut writer in writers {
@@ -103,6 +116,7 @@ pub fn create_writer_threads(
     rx: Receiver<Message>,
     data_dir: Option<String>,
     redis_url: Option<String>,
+    timeout: Option<u64>,
 ) -> Vec<JoinHandle<()>> {
     let mut threads = Vec::new();
     if data_dir.is_none() && redis_url.is_none() {
@@ -117,10 +131,16 @@ pub fn create_writer_threads(
             rx,
             data_dir.unwrap(),
             Some(tx_redis),
+            timeout,
         ));
         threads.push(create_redis_writer_thread(rx_redis, redis_url.unwrap()));
     } else if data_dir.is_some() {
-        threads.push(create_file_writer_thread(rx, data_dir.unwrap(), None))
+        threads.push(create_file_writer_thread(
+            rx,
+            data_dir.unwrap(),
+            None,
+            timeout,
+        ))
     } else {
         threads.push(create_redis_writer_thread(rx, redis_url.unwrap()));
     }

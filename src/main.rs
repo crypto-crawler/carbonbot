@@ -18,7 +18,7 @@ pub async fn crawl(
         return;
     }
     let (tx, rx) = std::sync::mpsc::channel::<Message>();
-    let writer_threads = create_writer_threads(rx, data_dir, redis_url);
+    let writer_threads = create_writer_threads(rx, data_dir, redis_url, Some(300));
 
     if msg_type == MessageType::Candlestick {
         crawl_candlestick(exchange, market_type, None, tx).await;
