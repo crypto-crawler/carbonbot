@@ -30,30 +30,8 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     mkdir -p /etc/fixuid && \
     printf "user: node\ngroup: node\npaths:\n  - /home/node\n  - /var/lib/logrotate/\n" > /etc/fixuid/config.yml
 
-COPY --chown=node:node ./conf/pm2/pm2.bbo.config.js /home/node/pm2.bbo.config.js
-COPY --chown=node:node ./conf/pm2/pm2.candlestick.config.js /home/node/pm2.candlestick.config.js
-COPY --chown=node:node ./conf/pm2/pm2.trade.config.js /home/node/pm2.trade.config.js
-COPY --chown=node:node ./conf/pm2/pm2.ticker.config.js /home/node/pm2.ticker.config.js
-COPY --chown=node:node ./conf/pm2/pm2.l2_event.config.js /home/node/pm2.l2_event.config.js
-COPY --chown=node:node ./conf/pm2/pm2.l2_snapshot.config.js /home/node/pm2.l2_snapshot.config.js
-COPY --chown=node:node ./conf/pm2/pm2.l2_topk.config.js /home/node/pm2.l2_topk.config.js
-COPY --chown=node:node ./conf/pm2/pm2.l3_event.config.js /home/node/pm2.l3_event.config.js
-COPY --chown=node:node ./conf/pm2/pm2.funding_rate.config.js /home/node/pm2.funding_rate.config.js
-COPY --chown=node:node ./conf/pm2/pm2.other.config.js /home/node/pm2.other.config.js
-COPY --chown=node:node ./conf/pm2/pm2.open_interest.config.js /home/node/pm2.open_interest.config.js
-
-COPY ./conf/logrotate/logrotate.bbo.conf /usr/local/etc/logrotate.bbo.conf
-COPY ./conf/logrotate/logrotate.candlestick.conf /usr/local/etc/logrotate.candlestick.conf
-COPY ./conf/logrotate/logrotate.trade.conf /usr/local/etc/logrotate.trade.conf
-COPY ./conf/logrotate/logrotate.ticker.conf /usr/local/etc/logrotate.ticker.conf
-COPY ./conf/logrotate/logrotate.l2_event.conf /usr/local/etc/logrotate.l2_event.conf
-COPY ./conf/logrotate/logrotate.l2_snapshot.conf /usr/local/etc/logrotate.l2_snapshot.conf
-COPY ./conf/logrotate/logrotate.l2_topk.conf /usr/local/etc/logrotate.l2_topk.conf
-COPY ./conf/logrotate/logrotate.l3_event.conf /usr/local/etc/logrotate.l3_event.conf
-COPY ./conf/logrotate/logrotate.funding_rate.conf /usr/local/etc/logrotate.funding_rate.conf
-COPY ./conf/logrotate/logrotate.other.conf /usr/local/etc/logrotate.other.conf
-COPY ./conf/logrotate/logrotate.open_interest.conf /usr/local/etc/logrotate.open_interest.conf
-
+COPY --chown=node:node ./conf/pm2/pm2.*.config.js /home/node/
+COPY ./conf/logrotate/logrotate.*.conf /usr/local/etc/
 COPY --chown=node:node ./conf/rclone.conf /home/node/.config/rclone/rclone.conf
 COPY ./conf/logrotate.sh /usr/local/bin/logrotate.sh
 COPY ./conf/upload.sh /usr/local/bin/upload.sh
