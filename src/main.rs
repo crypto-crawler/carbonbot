@@ -3,26 +3,74 @@ use crypto_crawler::*;
 use crypto_market_type::MarketType;
 use crypto_msg_type::MessageType;
 use log::*;
-use std::{env, str::FromStr};
+use once_cell::sync::Lazy;
+use std::{collections::HashMap, env, str::FromStr};
+
+#[allow(clippy::type_complexity)]
+static TIMEOUT_CONFIGS: Lazy<HashMap<MessageType, HashMap<String, HashMap<MarketType, u64>>>> =
+    Lazy::new(|| {
+        //HashMap::from([(1, 2), (3, 4)]);
+        // offline data, in case the network is down
+        let mut trade_configs: HashMap<String, HashMap<MarketType, u64>> = HashMap::new();
+        trade_configs.insert(
+            "gate".to_string(),
+            HashMap::from([
+                (MarketType::InverseFuture, 120),
+                (MarketType::InverseSwap, 120),
+                (MarketType::LinearFuture, 120),
+            ]),
+        );
+        trade_configs.insert(
+            "kraken".to_string(),
+            HashMap::from([
+                (MarketType::InverseFuture, 120),
+                (MarketType::InverseSwap, 120),
+            ]),
+        );
+        trade_configs.insert(
+            "kucoin".to_string(),
+            HashMap::from([
+                (MarketType::InverseFuture, 120),
+                (MarketType::InverseSwap, 120),
+            ]),
+        );
+        trade_configs.insert(
+            "zb".to_string(),
+            HashMap::from([(MarketType::LinearSwap, 120)]),
+        );
+        trade_configs.insert(
+            "zbg".to_string(),
+            HashMap::from([
+                (MarketType::InverseSwap, 120),
+                (MarketType::LinearSwap, 120),
+            ]),
+        );
+
+        HashMap::from([(MessageType::Trade, trade_configs)])
+    });
 
 fn get_message_gap(exchange: &'static str, market_type: MarketType, msg_type: MessageType) -> u64 {
+    if let Some(x) = TIMEOUT_CONFIGS.get(&msg_type) {
+        if let Some(y) = x.get(exchange) {
+            if let Some(z) = y.get(&market_type) {
+                return *z;
+            }
+        }
+    }
+
     match msg_type {
         MessageType::Trade | MessageType::Ticker => match market_type {
-            MarketType::Spot
-            | MarketType::InverseFuture
-            | MarketType::InverseSwap
-            | MarketType::LinearFuture
-            | MarketType::LinearSwap => 30,
+            MarketType::Spot | MarketType::LinearSwap => 60,
+            MarketType::InverseFuture | MarketType::InverseSwap | MarketType::LinearFuture => 120,
             _ => 300, // 5 minutes
         },
         MessageType::L2Event | MessageType::L3Event | MessageType::L2TopK | MessageType::BBO => {
             match market_type {
-                MarketType::Spot
-                | MarketType::InverseFuture
-                | MarketType::InverseSwap
-                | MarketType::LinearFuture
-                | MarketType::LinearSwap => 5,
-                _ => 300, // 5 minutes
+                MarketType::Spot | MarketType::LinearSwap => 10,
+                MarketType::InverseFuture | MarketType::InverseSwap | MarketType::LinearFuture => {
+                    20
+                }
+                _ => 180, // 3 minutes
             }
         }
         MessageType::FundingRate => {
