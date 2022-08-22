@@ -25,7 +25,7 @@ Object.keys(market_types).forEach((exchange) => {
     market_types[exchange].forEach((market_ype) => {
         // 60 seconds for bitfinex, and 5 seconds for others
         // see https://docs.bitfinex.com/docs/requirements-and-limitations
-        const restart_interval = exchange === 'bitfinex' ? 60000 : 5000;
+        const restart_interval = exchange === 'bitfinex' ? 65000 : 5000;
         const app = {
             name: `crawler-open_interest-${exchange}-${market_ype}`,
             script: "carbonbot",
