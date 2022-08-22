@@ -8,7 +8,7 @@ use std::{
     path::Path,
     sync::mpsc::{Receiver, Sender},
     thread::JoinHandle,
-    time::Instant,
+    time::{Duration, Instant},
 };
 
 pub trait Writer {
@@ -23,13 +23,14 @@ fn create_file_writer_thread(
     rx: Receiver<Message>,
     data_dir: String,
     tx_redis: Option<Sender<Message>>,
-    timeout: Option<u64>,
+    timeout_secs: u64,
 ) -> JoinHandle<()> {
     std::thread::spawn(move || {
-        let timeout = timeout.unwrap_or(300);
+        let timeout = Duration::from_secs(timeout_secs);
         let mut writers: HashMap<String, FileWriter> = HashMap::new();
-        let mut updated_at = Instant::now();
-        for msg in rx {
+
+        let start_time = Instant::now();
+        while let Ok(msg) = rx.recv_timeout(timeout) {
             let file_name = format!("{}.{}.{}", msg.exchange, msg.market_type, msg.msg_type);
             if !writers.contains_key(&file_name) {
                 let data_dir = Path::new(&data_dir)
@@ -56,18 +57,18 @@ fn create_file_writer_thread(
             if let Some(ref tx_redis) = tx_redis {
                 tx_redis.send(msg).unwrap();
             }
-
-            let elapsed = updated_at.elapsed().as_secs();
-            if elapsed > timeout {
-                // pm2 will restart this process
-                panic!("There are no messages for {} seconds, exiting", elapsed);
-            } else {
-                updated_at = Instant::now();
-            }
         }
+
         for mut writer in writers {
             writer.1.close();
         }
+
+        let elapsed = start_time.elapsed().as_secs();
+        error!(
+            "This crawler has been running stably for {} seconds, until there are no messages for {} seconds, exiting now",
+            elapsed, timeout_secs
+        );
+        std::process::exit(1); // pm2 will restart this process
     })
 }
 
@@ -116,7 +117,7 @@ pub fn create_writer_threads(
     rx: Receiver<Message>,
     data_dir: Option<String>,
     redis_url: Option<String>,
-    timeout: Option<u64>,
+    timeout_secs: u64,
 ) -> Vec<JoinHandle<()>> {
     let mut threads = Vec::new();
     if data_dir.is_none() && redis_url.is_none() {
@@ -131,7 +132,7 @@ pub fn create_writer_threads(
             rx,
             data_dir.unwrap(),
             Some(tx_redis),
-            timeout,
+            timeout_secs,
         ));
         threads.push(create_redis_writer_thread(rx_redis, redis_url.unwrap()));
     } else if data_dir.is_some() {
@@ -139,7 +140,7 @@ pub fn create_writer_threads(
             rx,
             data_dir.unwrap(),
             None,
-            timeout,
+            timeout_secs,
         ))
     } else {
         threads.push(create_redis_writer_thread(rx, redis_url.unwrap()));

@@ -5,6 +5,39 @@ use crypto_msg_type::MessageType;
 use log::*;
 use std::{env, str::FromStr};
 
+fn get_message_gap(exchange: &'static str, market_type: MarketType, msg_type: MessageType) -> u64 {
+    match msg_type {
+        MessageType::Trade | MessageType::Ticker => match market_type {
+            MarketType::Spot
+            | MarketType::InverseFuture
+            | MarketType::InverseSwap
+            | MarketType::LinearFuture
+            | MarketType::LinearSwap => 30,
+            _ => 300, // 5 minutes
+        },
+        MessageType::L2Event | MessageType::L3Event | MessageType::L2TopK | MessageType::BBO => {
+            match market_type {
+                MarketType::Spot
+                | MarketType::InverseFuture
+                | MarketType::InverseSwap
+                | MarketType::LinearFuture
+                | MarketType::LinearSwap => 5,
+                _ => 300, // 5 minutes
+            }
+        }
+        MessageType::FundingRate => {
+            match exchange {
+                "bitmex" => 3600 * 8, // Sent every funding interval (usually 8hrs), see https://www.bitmex.com/app/wsAPI
+                "huobi" => 60, // Funding rate will be pushed every 60 seconds by default, see https://huobiapi.github.io/docs/coin_margined_swap/v1/en/#unsubscribe-funding-rate-data-no-authentication-unsub
+                "okx" => 90, // Data will be pushed in 30s to 90s, see https://www.okx.com/docs-v5/en/#websocket-api-public-channel-funding-rate-channel
+                _ => 3600,
+            }
+        }
+        MessageType::Candlestick => 60,
+        _ => 300, // 5 minutes
+    }
+}
+
 pub async fn crawl(
     exchange: &'static str,
     market_type: MarketType,
@@ -18,7 +51,8 @@ pub async fn crawl(
         return;
     }
     let (tx, rx) = std::sync::mpsc::channel::<Message>();
-    let writer_threads = create_writer_threads(rx, data_dir, redis_url, Some(300));
+    let timeout_secs = get_message_gap(exchange, market_type, msg_type);
+    let writer_threads = create_writer_threads(rx, data_dir, redis_url, timeout_secs);
 
     if msg_type == MessageType::Candlestick {
         crawl_candlestick(exchange, market_type, None, tx).await;
