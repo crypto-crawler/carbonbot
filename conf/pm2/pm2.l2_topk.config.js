@@ -11,6 +11,7 @@ const market_types = {
     bitmex: ["unknown"], // unknown means all
     bitstamp: ["spot"],
     deribit: ["inverse_future", "inverse_swap", "european_option"],
+    gate: ["spot", "inverse_swap", "linear_swap"],
     huobi: ["spot", "inverse_future", "linear_swap", "inverse_swap"],
     kucoin: ["spot", "inverse_future", "linear_swap", "inverse_swap"],
     mexc: ["spot", "linear_swap", "inverse_swap"],
