@@ -6,39 +6,53 @@ use log::*;
 use once_cell::sync::Lazy;
 use std::{collections::HashMap, env, str::FromStr};
 
+// Exchanges with poor liquidity
 #[allow(clippy::type_complexity)]
-static TIMEOUT_CONFIGS: Lazy<HashMap<MessageType, HashMap<String, HashMap<MarketType, u64>>>> =
+static HEARTBEAT_CONFIGS: Lazy<HashMap<MessageType, HashMap<String, HashMap<MarketType, u64>>>> =
     Lazy::new(|| {
-        //HashMap::from([(1, 2), (3, 4)]);
-        // offline data, in case the network is down
         let mut trade_configs: HashMap<String, HashMap<MarketType, u64>> = HashMap::new();
+        trade_configs.insert(
+            "bitfinex".to_string(),
+            HashMap::from([(MarketType::Spot, 180)]),
+        );
         trade_configs.insert(
             "gate".to_string(),
             HashMap::from([
-                (MarketType::InverseFuture, 120),
-                (MarketType::InverseSwap, 120),
-                (MarketType::LinearFuture, 120),
+                (MarketType::InverseFuture, 600),
+                (MarketType::LinearFuture, 600),
             ]),
         );
         trade_configs.insert(
             "kraken".to_string(),
             HashMap::from([
-                (MarketType::InverseFuture, 120),
-                (MarketType::InverseSwap, 120),
-            ]),
-        );
-        trade_configs.insert(
-            "kucoin".to_string(),
-            HashMap::from([
-                (MarketType::InverseFuture, 120),
-                (MarketType::InverseSwap, 120),
+                (MarketType::InverseFuture, 420),
+                (MarketType::InverseSwap, 180),
             ]),
         );
         trade_configs.insert(
             "zb".to_string(),
-            HashMap::from([(MarketType::LinearSwap, 120)]),
+            HashMap::from([(MarketType::LinearSwap, 360)]),
         );
         trade_configs.insert(
+            "zbg".to_string(),
+            HashMap::from([
+                (MarketType::InverseSwap, 540),
+                (MarketType::LinearSwap, 540),
+            ]),
+        );
+
+        let mut l2_event_configs: HashMap<String, HashMap<MarketType, u64>> = HashMap::new();
+        l2_event_configs.insert(
+            "bitfinex".to_string(),
+            HashMap::from([(MarketType::Spot, 120), (MarketType::LinearSwap, 120)]),
+        );
+        l2_event_configs.insert("gate".to_string(), HashMap::from([(MarketType::Spot, 120)]));
+        l2_event_configs.insert("mexc".to_string(), HashMap::from([(MarketType::Spot, 120)]));
+        l2_event_configs.insert(
+            "zb".to_string(),
+            HashMap::from([(MarketType::LinearSwap, 120)]),
+        );
+        l2_event_configs.insert(
             "zbg".to_string(),
             HashMap::from([
                 (MarketType::InverseSwap, 120),
@@ -46,11 +60,18 @@ static TIMEOUT_CONFIGS: Lazy<HashMap<MessageType, HashMap<String, HashMap<Market
             ]),
         );
 
-        HashMap::from([(MessageType::Trade, trade_configs)])
+        HashMap::from([
+            (MessageType::Trade, trade_configs.clone()),
+            (MessageType::Ticker, trade_configs),
+            (MessageType::L2Event, l2_event_configs.clone()),
+            (MessageType::L3Event, l2_event_configs.clone()),
+            (MessageType::L2TopK, l2_event_configs.clone()),
+            (MessageType::BBO, l2_event_configs),
+        ])
     });
 
 fn get_message_gap(exchange: &'static str, market_type: MarketType, msg_type: MessageType) -> u64 {
-    if let Some(x) = TIMEOUT_CONFIGS.get(&msg_type) {
+    if let Some(x) = HEARTBEAT_CONFIGS.get(&msg_type) {
         if let Some(y) = x.get(exchange) {
             if let Some(z) = y.get(&market_type) {
                 return *z;
@@ -62,26 +83,26 @@ fn get_message_gap(exchange: &'static str, market_type: MarketType, msg_type: Me
         MessageType::Trade | MessageType::Ticker => match market_type {
             MarketType::Spot | MarketType::LinearSwap => 60,
             MarketType::InverseFuture | MarketType::InverseSwap | MarketType::LinearFuture => 120,
-            _ => 300, // 5 minutes
+            _ => 360, // 6 minutes
         },
         MessageType::L2Event | MessageType::L3Event | MessageType::L2TopK | MessageType::BBO => {
             match market_type {
-                MarketType::Spot | MarketType::LinearSwap => 10,
+                MarketType::Spot | MarketType::LinearSwap => 15,
                 MarketType::InverseFuture | MarketType::InverseSwap | MarketType::LinearFuture => {
-                    20
+                    25
                 }
-                _ => 180, // 3 minutes
+                _ => 120, // 2 minutes
             }
         }
         MessageType::FundingRate => {
             match exchange {
-                "bitmex" => 3600 * 8, // Sent every funding interval (usually 8hrs), see https://www.bitmex.com/app/wsAPI
-                "huobi" => 60, // Funding rate will be pushed every 60 seconds by default, see https://huobiapi.github.io/docs/coin_margined_swap/v1/en/#unsubscribe-funding-rate-data-no-authentication-unsub
-                "okx" => 90, // Data will be pushed in 30s to 90s, see https://www.okx.com/docs-v5/en/#websocket-api-public-channel-funding-rate-channel
+                "bitmex" => 3600 * 8 + 5, // Sent every funding interval (usually 8hrs), see https://www.bitmex.com/app/wsAPI
+                "huobi" => 65, // Funding rate will be pushed every 60 seconds by default, see https://huobiapi.github.io/docs/coin_margined_swap/v1/en/#unsubscribe-funding-rate-data-no-authentication-unsub
+                "okx" => 95, // Data will be pushed in 30s to 90s, see https://www.okx.com/docs-v5/en/#websocket-api-public-channel-funding-rate-channel
                 _ => 3600,
             }
         }
-        MessageType::Candlestick => 60,
+        MessageType::Candlestick => 180,
         _ => 300, // 5 minutes
     }
 }
@@ -94,6 +115,7 @@ pub async fn crawl(
     redis_url: Option<String>,
     symbols: Option<&[String]>,
 ) {
+    info!("Started to crawl {} {} {}", exchange, market_type, msg_type);
     if data_dir.is_none() && redis_url.is_none() {
         error!("Both DATA_DIR and REDIS_URL are not set");
         return;
