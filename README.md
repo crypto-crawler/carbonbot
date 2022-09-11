@@ -2,7 +2,7 @@
 
 A CLI tool based on the crypto-crawler-rs library to crawl trade, level2, level3, ticker, funding rate, etc.
 
-## 1. Data Sample Download
+## 1. Sample Data Download
 
 ### AWS S3
 
@@ -19,97 +19,25 @@ The S3 bucket `s3://carbonbot` has **Requester Pays** enabled.
 TODO
 
 
-## 2. Run
+## 2. Run Crawlers
 
-To quickly get started, copy `conf/run_crawlers.sh` to somewhere, fill in neccesary parameters and run it.
+Copy `conf/run_crawlers.sh` to somewhere, change `LOCAL_TMP_DIR` to a local SSD directory and `DEST_DIR` to a directory on a large disk, and run this shell script. Run `docker ps` and you'll see all crawlers are running! 
 
-### Trade
+Use `tail -f file` to check files under `LOCAL_TMP_DIR`, you'll see data in realtime; watch the `DEST_DIR` dirctory, you'll see new files are moved from  `LOCAL_TMP_DIR` to `DEST_DIR` every 15 minutes.
 
-Crawl tick-by-tick trades:
+## 3. Output Destinations
 
-```bash
-docker run -d --name carbonbot-trade --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.trade.config.js
-```
+Crawlers running in the `ghcr.io/crypto-crawler/carbonbot:latest` container write data to the local temporary path `/carbonbot_data` first, then move data to multiple destinations every 15 minutes.
 
-### Level2 orderbook updates
+Four kinds of destinations are supported: directory, AWS S3, MinIO and Redis.
 
-Crawl realtime level2 orderbook incremental updates:
+### Directory
 
-```bash
-docker run -d --name carbonbot-l2_event --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.l2_event.config.js
-```
-
-### Level2 orderbook full snapshots from RESTful API
-
-Crawl level2 orderbook full snapshots from RESTful API:
+To save data to a local directory or a NFS directory, users need to mount this directory into the docker container, and specify a `DEST_DIR` environment variable pointing to this directory. For example:
 
 ```bash
-docker run -d --name carbonbot-l2_snapshot --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.l2_snapshot.config.js
+docker run -d --name carbonbot-trade --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -v $DEST_DIR:/dest_dir -e DEST_DIR=/dest_dir -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.trade.config.js
 ```
-
-### Level2 orderbook top-k snapshots
-
-Crawl realtime level2 orderbook top-K snapshots:
-
-```bash
-docker run -d --name carbonbot-l2_topk --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.l2_topk.config.js
-```
-
-### Level3 orderbook updates
-
-Crawl realtime level3 orderbook incremental updates:
-
-```bash
-docker run -d --name carbonbot-l3_event --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.l3_event.config.js
-```
-
-### BBO
-
-Crawl realtime BBO:
-
-```bash
-docker run -d --name carbonbot-bbo --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.bbo.config.js
-```
-
-### Ticker
-
-Crawl 24hr rolling window tickers:
-
-```bash
-docker run -d --name carbonbot-ticker --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.ticker.config.js
-```
-
-### Candlestick
-
-Crawl candlesticks(i.e., OHLCV)
-
-```bash
-docker run -d --name carbonbot-candlestick --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.candlestick.config.js
-```
-
-### Funding rate
-
-Crawl funding rates
-
-```bash
-docker run -d --name carbonbot-funding_rate --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.funding_rate.config.js
-```
-
-### Open interest
-
-```bash
-docker run -d --name carbonbot-open_interest --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.open_interest.config.js
-```
-
-### Other
-
-```bash
-docker run -d --name carbonbot-other --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY" -e AWS_SECRET_ACCESS_KEY="YOUR_SECRET_KEY" -e AWS_S3_DIR="s3://YOUR_BUCKET/path" -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.other.config.js
-```
-
-## Output Destinations
-
-Crawlers running in the `ghcr.io/crypto-crawler/carbonbot:latest` container write data to the local temporary path `/carbonbot_data` first, then copy data to multiple destinations every 15 minutes, and delete source files in `/carbonbot_data`.
 
 ### AWS S3
 
@@ -138,15 +66,8 @@ To output data to Redis, users needs to specify a `REDIS_URL` environment variab
 docker run -d --name carbonbot-trade --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -e REDIS_URL=redis://172.17.0.1:6379 -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.trade.config.js
 ```
 
-### Local Directory
 
-To output data to a local directory on host machine, users need to mount this local directory into the docker container, and specify a `DEST_DIR` environment variable pointing to this directory. For example:
-
-```bash
-docker run -d --name carbonbot-trade --restart always -v $YOUR_LOCAL_PATH:/carbonbot_data -v $ANOTHER_LOCAL_PATH:/dest_dir -e DEST_DIR=/dest_dir -u "$(id -u):$(id -g)" ghcr.io/crypto-crawler/carbonbot:latest pm2-runtime start pm2.trade.config.js
-```
-
-## 3. Build
+## 4. Build
 
 ```bash
 docker pull rust:latest && docker pull node:bullseye-slim

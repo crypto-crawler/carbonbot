@@ -44,7 +44,7 @@ static HEARTBEAT_CONFIGS: Lazy<HashMap<MessageType, HashMap<String, HashMap<Mark
         let mut l2_event_configs: HashMap<String, HashMap<MarketType, u64>> = HashMap::new();
         l2_event_configs.insert(
             "bitfinex".to_string(),
-            HashMap::from([(MarketType::Spot, 120), (MarketType::LinearSwap, 120)]),
+            HashMap::from([(MarketType::Spot, 120), (MarketType::LinearSwap, 150)]),
         );
         l2_event_configs.insert("gate".to_string(), HashMap::from([(MarketType::Spot, 120)]));
         l2_event_configs.insert("mexc".to_string(), HashMap::from([(MarketType::Spot, 120)]));
