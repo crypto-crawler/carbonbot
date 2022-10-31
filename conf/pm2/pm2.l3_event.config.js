@@ -3,7 +3,6 @@ const market_types = {
     bitfinex: ["spot", "linear_swap"],
     bitstamp: ["spot"],
     coinbase_pro: ["spot"],
-    kucoin: ["spot", "inverse_future", "linear_swap", "inverse_swap"],
 };
 
 const apps = [];

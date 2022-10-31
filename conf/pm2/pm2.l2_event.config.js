@@ -8,7 +8,7 @@ const market_types = {
         "inverse_swap",
     ],
     bitfinex: ["spot", "linear_swap"],
-    bitget: ["spot", "inverse_swap", "linear_swap"],
+    bitget: ["spot", "inverse_swap", "linear_swap", "inverse_future"],
     bithumb: ["spot"],
     bitmex: ["unknown"], // unknown means all
     bitstamp: ["spot"],

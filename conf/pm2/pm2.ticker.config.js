@@ -7,7 +7,7 @@ const market_types = {
         // "european_option",
     ],
     bitfinex: ["spot", "linear_swap"],
-    bitget: ["spot", "inverse_swap", "linear_swap"],
+    bitget: ["spot", "inverse_swap", "linear_swap", "inverse_future"],
     bithumb: ["spot"],
     bybit: ["inverse_future", "inverse_swap", "linear_swap"],
     coinbase_pro: ["spot"],
