@@ -7,7 +7,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-crypto-crawler = "4.7.1"
+crypto-crawler = "4.7.2"
 crypto-market-type = "1.1.5"
 crypto-msg-type = "1.0.11"
 crypto-ws-client = "4.12.8"
