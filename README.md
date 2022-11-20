@@ -1,5 +1,8 @@
 # carbonbot
 
+[![Discord](https://img.shields.io/discord/1043987684164649020?logo=discord)](https://discord.gg/Vych8DNZU2)
+==========
+
 A CLI tool based on the crypto-crawler-rs library to crawl trade, level2, level3, ticker, funding rate, etc.
 
 ## 1. Sample Data Download
