@@ -12,8 +12,7 @@ aws s3 ls --request-payer requester s3://carbonbot/
 aws s3 sync --request-payer requester s3://carbonbot/monthly/parsed .
 ```
 
-The S3 bucket `s3://carbonbot` has **Requester Pays** enabled.
-
+The S3 bucket `s3://carbonbot` has **Requester Pays** enabled, so users only pay for the data transfer fee, while I pay for the data storage fee.
 
 ## 2. Run Crawlers
 
