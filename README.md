@@ -16,7 +16,7 @@ The S3 bucket `s3://carbonbot` has **Requester Pays** enabled, so users only pay
 
 ## 2. Run Crawlers
 
-Copy `conf/run_crawlers.sh` to somewhere, change `LOCAL_TMP_DIR` to a local SSD directory and `DEST_DIR` to a directory on a large disk, and run this shell script. Run `docker ps` and you'll see all crawlers are running! 
+Copy `conf/run_crawlers.sh` to somewhere, change `LOCAL_TMP_DIR` to a local SSD directory and `DEST_DIR` to a directory on a large disk, and run this shell script. Run `docker ps` and you'll see all crawlers are running!
 
 Use `tail -f file` to check files under `LOCAL_TMP_DIR`, you'll see data in realtime; watch the `DEST_DIR` dirctory, you'll see new files are moved from  `LOCAL_TMP_DIR` to `DEST_DIR` every 15 minutes.
 
@@ -65,7 +65,6 @@ docker run -d --name carbonbot-trade --restart always -v $YOUR_LOCAL_PATH:/carbo
 ## 4. Build
 
 ```bash
-docker pull rust:latest && docker pull node:bullseye-slim
 docker build -t ghcr.io/crypto-crawler/carbonbot:latest .
 docker push ghcr.io/crypto-crawler/carbonbot:latest
 ```

@@ -16,10 +16,11 @@ COPY --from=builder /project/target/release/carbonbot /usr/local/bin/carbonbot
 
 # procps provides the ps command, which is needed by pm2
 RUN apt-get -qy update && apt-get -qy --no-install-recommends install \
-    ca-certificates curl htop logrotate procps pigz tree \
+    ca-certificates curl htop logrotate procps pigz sudo tree \
  && chown -R node:node /var/lib/logrotate/ \
  && npm install pm2 -g --production \
  && apt-get -qy install gzip unzip && curl https://rclone.org/install.sh | bash \
+ && echo "node ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers \
  && apt-get -qy autoremove && apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
 # Install fixuid
@@ -40,10 +41,10 @@ ENV RUST_LOG "warn"
 ENV RUST_BACKTRACE 1
 
 VOLUME [ "/carbonbot_data" ]
+ENV DATA_DIR /carbonbot_data
 
 USER node:node
 ENV USER node
-ENV DATA_DIR /carbonbot_data
 WORKDIR /home/node
 
 ENTRYPOINT ["fixuid", "-q"]
