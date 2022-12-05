@@ -35,6 +35,7 @@ COPY --chown=node:node ./conf/pm2/pm2.*.config.js /home/node/
 COPY ./conf/logrotate/logrotate.*.conf /usr/local/etc/
 COPY --chown=node:node ./conf/rclone.conf /home/node/.config/rclone/rclone.conf
 COPY ./conf/logrotate.sh /usr/local/bin/logrotate.sh
+COPY ./conf/compress.sh /usr/local/bin/compress.sh
 COPY ./conf/upload.sh /usr/local/bin/upload.sh
 
 ENV RUST_LOG "warn"
