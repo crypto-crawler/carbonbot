@@ -39,37 +39,29 @@ if [[ -n "${DEST_DIR}" ]]; then
   num_destinations=$((num_destinations+1))
 fi
 
-# optional optimization, if only one of DEST_DIR, AWS_S3_DIR or MINIO_DIR is set, then is_move is true
-if [ $num_destinations -gt 1 ]; then
-  sub_command="copy"
-else
-  sub_command="move"
-fi
-
 # Infinite while loop
 while :
 do
-  # Find .json files older than 1 minute and compress them
+  # Find .json.gz and .json.xz files older than 1 minute and upload them
   find "$DATA_DIR/$msg_type" -name "*.json" -type f -mmin +1 | xargs -r -n 1 pigz -f
   success=true
   if [[ -n "${AWS_S3_DIR}" ]]; then
-    if ! rclone --s3-region "${AWS_REGION:-us-east-1}" --immutable --contimeout=1s --retries 1 --low-level-retries 1 $sub_command "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8; then
-      success=false
+    if [ $num_destinations -gt 1 ]; then sub_command="copy"; else sub_command="move"; fi
+    if rclone --s3-region "${AWS_REGION:-us-east-1}" --immutable --contimeout=1s --retries 1 --low-level-retries 1 $sub_command "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --include '*.json.xz' --min-age 1m --no-traverse --transfers=8; then
+      num_destinations=$((num_destinations-1))
     fi
   fi
   if [[ -n "${MINIO_DIR}" ]]; then
-    if ! rclone --s3-access-key-id "$MINIO_ACCESS_KEY_ID" --s3-secret-access-key "$MINIO_SECRET_ACCESS_KEY" --s3-endpoint "$MINIO_ENDPOINT_URL" --immutable --contimeout=1s --retries 1 --low-level-retries 1 $sub_command "$DATA_DIR/$msg_type" "$MINIO_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8; then
-      success=false
+    if [ $num_destinations -gt 1 ]; then sub_command="copy"; else sub_command="move"; fi
+    if rclone --s3-access-key-id "$MINIO_ACCESS_KEY_ID" --s3-secret-access-key "$MINIO_SECRET_ACCESS_KEY" --s3-endpoint "$MINIO_ENDPOINT_URL" --immutable --contimeout=1s --retries 1 --low-level-retries 1 $sub_command "$DATA_DIR/$msg_type" "$MINIO_DIR/$msg_type" --include '*.json.gz' --include '*.json.xz' --min-age 1m --no-traverse --transfers=8; then
+      num_destinations=$((num_destinations-1))
     fi
   fi
   if [[ -n "${DEST_DIR}" ]]; then
-    if ! rclone $sub_command "$DATA_DIR/$msg_type" "$DEST_DIR/$msg_type" --include '*.json.gz' --no-traverse --transfers=8; then
-      success=false
+    if [ $num_destinations -gt 1 ]; then sub_command="copy"; else sub_command="move"; fi
+    if rclone $sub_command "$DATA_DIR/$msg_type" "$DEST_DIR/$msg_type" --include '*.json.gz' --include '*.json.xz' --min-age 1m --no-traverse --transfers=8; then
+      num_destinations=$((num_destinations-1))
     fi
-  fi
-
-  if [[ "$success" = true && "$sub_command" = "copy" ]]; then
-    rclone delete "$DATA_DIR/$msg_type" --include '*.json.gz'
   fi
 
   sleep 3
