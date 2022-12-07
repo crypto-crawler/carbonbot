@@ -48,7 +48,7 @@ apps.push({
 });
 
 apps.push({
-    name: "upload",
+    name: "compress",
     script: "/usr/local/bin/compress.sh",
     args: "open_interest",
     exec_interpreter: "bash",

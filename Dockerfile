@@ -16,7 +16,7 @@ COPY --from=builder /project/target/release/carbonbot /usr/local/bin/carbonbot
 
 # procps provides the ps command, which is needed by pm2
 RUN apt-get -qy update && apt-get -qy --no-install-recommends install \
-    ca-certificates curl htop logrotate procps pigz sudo tree xz-utils \
+    ca-certificates curl htop iputils-ping logrotate procps pigz sudo tree xz-utils \
  && chown -R node:node /var/lib/logrotate/ \
  && npm install pm2 -g --production \
  && apt-get -qy install gzip unzip && curl https://rclone.org/install.sh | bash \

@@ -55,7 +55,7 @@ apps.push({
 });
 
 apps.push({
-    name: "upload",
+    name: "compress",
     script: "/usr/local/bin/compress.sh",
     args: "l2_topk",
     exec_interpreter: "bash",

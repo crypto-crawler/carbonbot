@@ -58,7 +58,7 @@ apps.push({
 });
 
 apps.push({
-    name: "upload",
+    name: "compress",
     script: "/usr/local/bin/compress.sh",
     args: "candlestick",
     exec_interpreter: "bash",

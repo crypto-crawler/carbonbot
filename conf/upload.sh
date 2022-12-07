@@ -42,9 +42,7 @@ fi
 # Infinite while loop
 while :
 do
-  # Find .json.gz and .json.xz files older than 1 minute and upload them
-  find "$DATA_DIR/$msg_type" -name "*.json" -type f -mmin +1 | xargs -r -n 1 pigz -f
-  success=true
+  # Upload .json.gz and .json.xz files older than 1 minute
   if [[ -n "${AWS_S3_DIR}" ]]; then
     if [ $num_destinations -gt 1 ]; then sub_command="copy"; else sub_command="move"; fi
     if rclone --s3-region "${AWS_REGION:-us-east-1}" --immutable --contimeout=1s --retries 1 --low-level-retries 1 $sub_command "$DATA_DIR/$msg_type" "$AWS_S3_DIR/$msg_type" --include '*.json.gz' --include '*.json.xz' --min-age 1m --no-traverse --transfers=8; then

@@ -64,7 +64,7 @@ apps.push({
 });
 
 apps.push({
-    name: "upload",
+    name: "compress",
     script: "/usr/local/bin/compress.sh",
     args: "trade",
     exec_interpreter: "bash",
