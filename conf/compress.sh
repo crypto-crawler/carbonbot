@@ -12,6 +12,6 @@ fi
 while :
 do
   # Find .json files older than 1 minute and compress them
-  find "$DATA_DIR/$msg_type" -name "*.json" -type f -mmin +1 | xargs -r -n 1 pigz -f
+  find "$DATA_DIR/$msg_type" -name "*.json" -type f -mmin +1 | xargs -r -n 1 pigz --best -f
   sleep 3
 done
