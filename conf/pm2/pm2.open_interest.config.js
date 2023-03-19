@@ -5,7 +5,6 @@ const market_types = {
     bybit: ["inverse_future", "inverse_swap", "linear_swap"],
     deribit: ["unknown"], // https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency={BTC,ETH,SOL,USDC} contains all markets
     dydx: ["linear_swap"],
-    ftx: ["unknown"], // https://ftx.com/api/futures contains all open interests
     gate: ["linear_swap", "inverse_swap"],
     huobi: ["inverse_future", "linear_swap", "inverse_swap"],
     kucoin: ["unknown"], // https://api-futures.kucoin.com/api/v1/contracts/active contains all open interests
